@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallstans Hub | WALI K</title>
+    <link rel="icon" type="image/png" id="favicon" href="YOUR_IMAGE_LINK_HERE">
+    
+    <style>
+        /* --- CORE CONFIGURATION --- */
+        :root {
+            --red: #ff1111;
+            --bg: #000000;
+            --panel: #0a0a0a;
+            --transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        /* Dark Red Theme Override */
+        body.theme-dark-red {
+            --red: #7a0000;
+            --panel: #050505;
+        }
+
+        * { box-sizing: border-box; cursor: crosshair; }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- BACKGROUND CANVAS --- */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        body.bg-active #bg-canvas { opacity: 0.4; }
+
+        /* --- LOADING SCREEN --- */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 10000; transition: opacity 0.6s ease, visibility 0.6s;
+        }
+        .loader-content { text-align: center; width: 300px; }
+        .loader-status { font-weight: 900; letter-spacing: 5px; color: var(--red); margin-bottom: 20px; text-transform: uppercase; font-size: 0.8rem; }
+        .progress-container { width: 100%; height: 2px; background: rgba(255, 255, 255, 0.1); position: relative; overflow: hidden; }
+        .progress-bar { position: absolute; height: 100%; width: 0%; background: var(--red); box-shadow: 0 0 15px var(--red); transition: width 3s linear; }
+
+        /* --- UPDATE LOG BOX --- */
+        #update-log-container {
+            position: fixed; top: 20px; right: 20px; width: 380px;
+            background: rgba(0, 0, 0, 0.8); border: 1px solid var(--red);
+            z-index: 500; padding: 15px; backdrop-filter: blur(10px);
+            transform: translateX(450px); transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            display: flex; flex-direction: column;
+        }
+        #main-content.loaded #update-log-container { transform: translateX(0); }
+        .log-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 17, 17, 0.3); padding-bottom: 8px; margin-bottom: 10px; }
+        .log-title { font-weight: 900; color: var(--red); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; }
+        .close-log { color: white; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
+        .log-content-wrapper { display: flex; gap: 15px; align-items: flex-start; }
+        .log-image { width: 80px; height: 180px; object-fit: contain; filter: drop-shadow(0 0 5px var(--red)); }
+        .log-body { flex: 1; font-size: 0.75rem; line-height: 1.5; color: #eee; text-transform: uppercase; letter-spacing: 1px; max-height: 180px; overflow-y: auto; }
+
+        /* --- LEFT CORNER IMAGE --- */
+        .corner-image {
+            position: fixed; bottom: -100px; left: -20px;
+            width: 380px; height: 380px; object-fit: contain;
+            object-position: bottom left; pointer-events: none; z-index: 1; opacity: 1; transition: var(--transition);
+        }
+
+        /* --- MAIN CONTENT --- */
+        #main-content { opacity: 0; transition: opacity 0.8s ease; }
+        header { text-align: center; padding: 100px 20px 40px; position: relative; z-index: 20; }
+        .logo { font-size: 3rem; font-weight: 900; letter-spacing: 15px; color: var(--red); text-shadow: 0 0 30px var(--red); text-transform: uppercase; margin: 0; }
+        nav { margin-top: 50px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+
+        .nav-btn {
+            background: transparent; border: none; color: #444; padding: 15px 40px;
+            font-size: 0.9rem; font-weight: bold; letter-spacing: 3px; text-transform: uppercase;
+            transition: var(--transition); position: relative; cursor: pointer;
+        }
+        .nav-btn::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 1px; background: var(--red); transition: var(--transition); }
+        .nav-btn:hover, .nav-btn.active { color: white; }
+        .nav-btn.active::after { width: 80%; left: 10%; box-shadow: 0 0 10px var(--red); }
+
+        /* --- SETTINGS OVERLAY --- */
+        .settings-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 3000; backdrop-filter: blur(10px);
+            justify-content: center; align-items: center;
+        }
+        .settings-window {
+            width: 550px; background: #050505; border: 1px solid var(--red);
+            padding: 0; box-shadow: 0 0 60px rgba(255, 17, 17, 0.15);
+        }
+        .settings-header {
+            background: var(--red); color: white; padding: 15px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .settings-header h2 { margin: 0; font-size: 0.8rem; letter-spacing: 4px; text-transform: uppercase; font-weight: 900; }
+        .settings-content { padding: 40px; }
+        .setting-item { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #111; padding-bottom: 20px; }
+        .setting-info h3 { margin: 0; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
+        .setting-info p { margin: 5px 0 0; font-size: 0.6rem; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+
+        .config-btn {
+            background: transparent; border: 1px solid #333; color: #666; padding: 8px 18px; 
+            font-size: 0.65rem; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase;
+        }
+        .config-btn.active { border-color: var(--red); color: #fff; background: rgba(255,17,17,0.1); }
+        .swatch-group { display: flex; gap: 10px; }
+        .swatch { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .swatch.active { border-color: white; transform: scale(1.1); }
+
+        /* --- PROXY INPUT --- */
+        .proxy-input {
+            width: 100%; background: #000; border: 1px solid #222; color: white;
+            padding: 20px; font-family: monospace; font-size: 1rem; margin-bottom: 20px;
+            outline: none; transition: 0.3s; text-align: center;
+        }
+        .proxy-input:focus { border-color: var(--red); box-shadow: 0 0 20px rgba(255,17,17,0.2); }
+
+        /* --- PAGES & CARDS --- */
+        .container { max-width: 1300px; margin: 0 auto 100px; padding: 20px; position: relative; z-index: 10; }
+        .page { display: none; opacity: 0; }
+        .page.active { display: block; opacity: 1; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; }
+        .card {
+            background: var(--panel); border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 50px 30px; text-align: center; transition: var(--transition);
+            position: relative; opacity: 0; transform: translateY(30px);
+        }
+        #main-content.loaded .card { animation: cardReveal 0.6s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
+        @keyframes cardReveal { to { opacity: 1; transform: translateY(0); } }
+        .card:hover { transform: translateY(-8px) !important; border-color: var(--red); background: #111; box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6); }
+        .card h3 { font-size: 1.6rem; margin: 0 0 10px 0; letter-spacing: 1px; }
+        .card p { color: #555; font-size: 0.8rem; margin-bottom: 40px; text-transform: uppercase; letter-spacing: 2px; }
+
+        .play-btn {
+            background: #000; color: var(--red); border: 1px solid var(--red);
+            padding: 18px 0; width: 100%; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 3px; transition: var(--transition); cursor: pointer;
+        }
+        .play-btn:hover { background: var(--red); color: white; box-shadow: 0 0 30px var(--red); }
+
+        .owner-section { background: var(--panel); border: 1px solid rgba(255, 255, 255, 0.03); padding: 100px; text-align: center; max-width: 900px; margin: 40px auto; }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-box { background: #000; border: 1px solid var(--red); padding: 50px; width: 380px; text-align: center; }
+
+        @media (max-width: 800px) { .corner-image { width: 200px; height: 200px; bottom: -40px; } }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="loader">
+        <div class="loader-content">
+            <div class="loader-status" id="load-text">made by wallstans..</div>
+            <div class="progress-container"><div class="progress-bar" id="load-bar"></div></div>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <div id="update-log-container">
+            <div class="log-header">
+                <span class="log-title">Nexus System Log</span>
+                <span class="close-log" onclick="closeLog()">[X]</span>
+            </div>
+            <div class="log-content-wrapper">
+                <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/f0a12dd3-322b-4300-a81b-ea83e004af56/ddzu80q-a3fbd48c-6f80-4082-85bc-535ee8aa9ca7.png/v1/fill/w_332,h_736/vocaloid___classical_teto_transparent_by_smochdar_ddzu80q-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzM2IiwicGF0aCI6Ii9mL2YwYTEyZGQzLTMyMmItNDMwMC1hODFiLWVhODNlMDA0YWY1Ni9kZHp1ODBxLWEzZmJkNDhjLTZmODAtNDA4Mi04NWJjLTUzNWVlOGFhOWNhNy5wbmciLCJ3aWR0aCI6Ijw9MzMyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.KiflLVyBoiDmevQgz_jGmWCrAxKEddSE5A9PVWhnW_8" class="log-image">
+                <div class="log-body" id="log-body-text"></div>
+            </div>
+        </div>
+
+        <img src="https://static.wikia.nocookie.net/vocaloid/images/5/5a/Teto.png/revision/latest?cb=20260310064834" class="corner-image">
+
+        <header>
+            <h1 class="logo"> WALLSTANS HUB </h1>
+            <nav>
+                <button class="nav-btn active" onclick="showPage('games', this)">GAMES</button>
+                <button class="nav-btn" onclick="showPage('proxy', this)">PROXY</button>
+                <button class="nav-btn" onclick="showPage('owner', this)">INFORMATION</button>
+                <button class="nav-btn" onclick="showPage('sneaks', this)">SNEAK PEEKS</button>
+                <button class="nav-btn" onclick="toggleSettings(true)">SETTINGS</button>
+            </nav>
+        </header>
+
+        <div class="container">
+            <section id="games" class="page active">
+                <div class="grid">
+                    <div class="card"><h3>BAD TIME</h3><p>PVE COMBAT</p><button class="play-btn" onclick="openGate('https://proud-lavender-law-346.vscodeedu.app/', 'https://drive.google.com/file/d/1udHycgNNB6wJu113gGqBp6K8JjPvvCA-/view?usp=sharing')">Execute</button></div>
+                    <div class="card"><h3>TBOIWOL</h3><p>PVE COMBAT</p><button class="play-btn" onclick="openGate('https://pumpkin-light-artist-606.vscodeedu.app', 'https://drive.google.com/file/d/1MbOtWVXgDHOpGm3-8jVXSDUoTkbEMRte/view?usp=sharing')">Execute</button></div>
+                    <div class="card"><h3>DELTARUNE</h3><p>PUZZLES</p><button class="play-btn" onclick="openGate('https://lilac-cleaning-sloth-484.vscodeedu.app', 'https://drive.google.com/file/d/1s4C3TpkM9OQ_OeHHNNwWMCVEbs6ywEQX/view?usp=sharing')">Execute</button></div>
+                    <div class="card"><h3>FNAF 1</h3><p>PUZZLES</p><button class="play-btn" onclick="openGate('https://basil-sprinting-artist-794.vscodeedu.app', 'CM')">Execute</button></div>
+                    <div class="card"><h3>ULTRA KILL</h3><p>PVE COMBAT</p><button class="play-btn" onclick="openGate('https://delighting-devoted-sofa-686.vscodeedu.app', 'CM')">Execute</button></div>
+                    <div class="card"><h3>POC</h3><p>TURN BASED</p><button class="play-btn" onclick="openGate('https://soothing-motivated-movie-549.vscodeedu.app', 'CM')">Execute</button></div>
+                </div>
+            </section>
+
+            <section id="proxy" class="page">
+                <div class="owner-section">
+                    <h2 style="color: white; font-size: 2rem; letter-spacing: 5px; text-transform: uppercase;">[ PROXY GATE ]</h2>
+                    <p style="color: #555; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 40px;">SECURE PRIVATE TUNNEL | BYPASS MODE</p>
+                    <input type="text" id="proxy-url" class="proxy-input" placeholder="ENTER SECURE URL (ROBLOX.COM, ETC.)">
+                    <button class="play-btn" style="max-width: 300px; margin: 0 auto;" onclick="launchProxy()">INITIATE TUNNEL</button>
+                    <div style="margin-top: 50px; color: var(--red); font-weight: 900; letter-spacing: 2px; font-size: 0.6rem;">NETWORK STATUS: SECURE BRIDGE ACTIVE</div>
+                </div>
+            </section>
+
+            <section id="sneaks" class="page">
+                <div class="grid">
+                    <div class="card">
+                        <h3>PROJECT PROXY</h3>
+                        <p>CLASSIFIED DEVELOPMENT: Proxy hub extension.</p>
+                        <div style="color: var(--red); font-weight: 900; letter-spacing: 2px;">[ IN PROGRESS ]</div>
+                    </div>
+                    <div class="card">
+                        <h3>UPDATE 1.1</h3>
+                        <p>CLASSIFIED DEVELOPMENT: New games.</p>
+                        <div style="color: var(--red); font-weight: 900; letter-spacing: 2px;">[ IN PROGRESS ]</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="owner" class="page">
+                <div class="owner-section">
+                    <h2 style="color: white; font-size: 2rem; letter-spacing: 10px; text-transform: uppercase;">[ WALLSTANS ]</h2>
+                    <p style="color: white; line-height: 2.2; margin-top: 80px; font-size: 1.3rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        [ Made by wallstans, not all games contain files. IT WILL BE FIXED SOON. <br><br>
+                        Discord server: ]
+                    </p>
+                    <div style="margin-top: 80px; color: var(--red); font-weight: 900; letter-spacing: 3px;">SYSTEM VERSION [ 1.0 ]</div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div id="settings-overlay" class="settings-overlay">
+        <div class="settings-window">
+            <div class="settings-header">
+                <h2>Nexus Configuration</h2>
+                <span style="cursor:pointer;" onclick="toggleSettings(false)">[X]</span>
+            </div>
+            <div class="settings-content">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Color Theme</h3>
+                        <p>Toggle between Original Red and Deep Dark Red.</p>
+                    </div>
+                    <div class="swatch-group">
+                        <div class="swatch active" style="background: #ff1111;" id="theme-red" onclick="setTheme('original')"></div>
+                        <div class="swatch" style="background: #7a0000;" id="theme-dark" onclick="setTheme('dark')"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Neural Particles</h3>
+                        <p>Toggle background animation nodes.</p>
+                    </div>
+                    <button id="p-btn" class="config-btn" onclick="toggleParticles()">Disabled</button>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Stealth Cloak</h3>
+                        <p>Changes Tab Title and Icon to Google Drive.</p>
+                    </div>
+                    <button id="stealth-btn" class="config-btn" onclick="toggleStealth()">Disabled</button>
+                </div>
+                <button class="play-btn" onclick="toggleSettings(false)" style="margin-top: 20px;">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-box">
+            <h2 style="color:white; margin-bottom: 30px; letter-spacing: 3px;">PLAY SELECTION</h2>
+            <button class="play-btn" id="playOnline" style="margin-bottom: 15px; background:var(--red); color:white;">ABOUT:BLANK</button>
+            <button class="play-btn" id="downloadGame" style="background:transparent;">FILE</button>
+            <div onclick="closeGate()" style="margin-top: 30px; color: var(--red); cursor:pointer; font-size: 0.75rem; text-transform: uppercase;">CLOSE</div>
+        </div>
+    </div>
+
+    <script>
+        const UPDATE_LOG_HTML = `<b>STATUS: ONLINE</b><br><br>• Version 1.0<br>• Proxy Module Added<br>• Stealth Cloak Active<br>• Made by wallstans.`;
+
+        window.addEventListener('load', () => {
+            const bar = document.getElementById('load-bar');
+            const text = document.getElementById('load-text');
+            document.getElementById('log-body-text').innerHTML = UPDATE_LOG_HTML;
+            setTimeout(() => { bar.style.width = '100%'; }, 100);
+            setTimeout(() => { text.innerText = 'teto is cool..'; }, 1500);
+            setTimeout(() => { 
+                document.getElementById('loader').style.opacity = '0';
+                document.getElementById('loader').style.visibility = 'hidden';
+                document.getElementById('main-content').style.opacity = '1';
+                document.getElementById('main-content').classList.add('loaded');
+                initParticles();
+            }, 3000); 
+        });
+
+        function toggleSettings(show) { document.getElementById('settings-overlay').style.display = show ? 'flex' : 'none'; }
+        
+        function setTheme(theme) {
+            document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+            if(theme === 'dark') {
+                document.body.classList.add('theme-dark-red');
+                document.getElementById('theme-dark').classList.add('active');
+            } else {
+                document.body.classList.remove('theme-dark-red');
+                document.getElementById('theme-red').classList.add('active');
+            }
+        }
+
+        function toggleParticles() {
+            const active = document.body.classList.toggle('bg-active');
+            const btn = document.getElementById('p-btn');
+            btn.innerText = active ? "Enabled" : "Disabled";
+            btn.classList.toggle('active', active);
+        }
+
+        function toggleStealth() {
+            const isStealth = document.body.classList.toggle('stealth-active');
+            const btn = document.getElementById('stealth-btn');
+            const fav = document.getElementById('favicon');
+            if(isStealth) {
+                document.title = "Google Drive";
+                fav.href = "https://ssl.gstatic.com/docs/doclist/images/drive_2020q4_32dp.png";
+                btn.innerText = "Enabled";
+                btn.classList.add('active');
+            } else {
+                document.title = "Wallstans Hub | WALI K";
+                fav.href = "YOUR_IMAGE_LINK_HERE";
+                btn.innerText = "Disabled";
+                btn.classList.remove('active');
+            }
+        }
+
+        function launchProxy() {
+            const urlInput = document.getElementById('proxy-url').value;
+            if (!urlInput) return;
+
+            let targetUrl = urlInput.trim();
+            if (!targetUrl.startsWith('http')) {
+                targetUrl = 'https://' + targetUrl;
+            }
+
+            // Using AllOrigins to strip "Refuse to Connect" headers
+            const bridge = "https://api.allorigins.win/raw?url=";
+            const finalUrl = bridge + encodeURIComponent(targetUrl);
+
+            const win = window.open('about:blank', '_blank');
+            win.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Google Drive</title>
+                    <style>
+                        body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; }
+                        iframe { width: 100%; height: 100%; border: none; }
+                    </style>
+                </head>
+                <body>
+                    <iframe src="${finalUrl}"></iframe>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+
+        function initParticles() {
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            let pts = [];
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            class P {
+                constructor() {
+                    this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                    this.vx = Math.random() * 0.4 - 0.2; this.vy = Math.random() * 0.4 - 0.2;
+                }
+                update() {
+                    this.x += this.vx; this.y += this.vy;
+                    if(this.x > canvas.width) this.x = 0; if(this.x < 0) this.x = canvas.width;
+                    if(this.y > canvas.height) this.y = 0; if(this.y < 0) this.y = canvas.height;
+                }
+                draw() {
+                    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--red');
+                    ctx.beginPath(); ctx.arc(this.x, this.y, 1, 0, Math.PI*2); ctx.fill();
+                }
+            }
+            for(let i=0; i<80; i++) pts.push(new P());
+            function animate() {
+                ctx.clearRect(0,0,canvas.width, canvas.height);
+                pts.forEach(p => { p.update(); p.draw(); });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function closeLog() { document.getElementById('update-log-container').style.transform = 'translateX(450px)'; }
+        function showPage(pageId, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        let currentP = "", currentD = "";
+        const m = document.getElementById('modal');
+        function openGate(p, d) { currentP = p; currentD = d; m.style.display = 'flex'; }
+        function closeGate() { m.style.display = 'none'; }
+        document.getElementById('downloadGame').onclick = () => window.location.href = currentD;
+        document.getElementById('playOnline').onclick = () => {
+            const win = window.open('about:blank', '_blank');
+            win.document.write(`<body style="margin:0;background:#000;overflow:hidden;"><iframe src="${currentP}" style="width:100%;height:100vh;border:none;"></iframe></body>`);
+            closeGate();
+        };
+    </script>
+</body>
+</html>
