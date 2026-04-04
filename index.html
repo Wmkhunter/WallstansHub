@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wallstans Hub | WALI K</title>
-    <link rel="icon" type="image/png" id="favicon" href="YOUR_IMAGE_LINK_HERE">
+    <link rel="icon" type="image/png" id="favicon" href="https://i.ibb.co/pVPrK0k/wallstans-hub.png">
     
     <style>
         /* --- CORE CONFIGURATION --- */
@@ -15,11 +15,10 @@
             --transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        /* Dark Red Theme Override */
-        body.theme-dark-red {
-            --red: #7a0000;
-            --panel: #050505;
-        }
+        /* Theme Overrides */
+        body.theme-orange { --red: #ff8c00; }
+        body.theme-cyan { --red: #00ffff; }
+        body.theme-purple { --red: #bf00ff; }
 
         * { box-sizing: border-box; cursor: crosshair; }
 
@@ -64,24 +63,22 @@
             display: flex; flex-direction: column;
         }
         #main-content.loaded #update-log-container { transform: translateX(0); }
-        .log-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 17, 17, 0.3); padding-bottom: 8px; margin-bottom: 10px; }
+        .log-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--red); opacity: 0.8; padding-bottom: 8px; margin-bottom: 10px; }
         .log-title { font-weight: 900; color: var(--red); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; }
         .close-log { color: white; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
         .log-content-wrapper { display: flex; gap: 15px; align-items: flex-start; }
-        .log-image { width: 80px; height: 180px; object-fit: contain; filter: drop-shadow(0 0 5px var(--red)); }
+        .log-image { width: 80px; height: 180px; object-fit: contain; filter: drop-shadow(0 0 5px var(--red)); transition: var(--transition); }
         .log-body { flex: 1; font-size: 0.75rem; line-height: 1.5; color: #eee; text-transform: uppercase; letter-spacing: 1px; max-height: 180px; overflow-y: auto; }
 
-        /* --- LEFT CORNER IMAGE --- */
         .corner-image {
             position: fixed; bottom: -100px; left: -20px;
             width: 380px; height: 380px; object-fit: contain;
             object-position: bottom left; pointer-events: none; z-index: 1; opacity: 1; transition: var(--transition);
         }
 
-        /* --- MAIN CONTENT --- */
         #main-content { opacity: 0; transition: opacity 0.8s ease; }
         header { text-align: center; padding: 100px 20px 40px; position: relative; z-index: 20; }
-        .logo { font-size: 3rem; font-weight: 900; letter-spacing: 15px; color: var(--red); text-shadow: 0 0 30px var(--red); text-transform: uppercase; margin: 0; }
+        .logo { font-size: 3rem; font-weight: 900; letter-spacing: 15px; color: var(--red); text-shadow: 0 0 30px var(--red); text-transform: uppercase; margin: 0; transition: var(--transition); }
         nav { margin-top: 50px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
 
         .nav-btn {
@@ -93,7 +90,6 @@
         .nav-btn:hover, .nav-btn.active { color: white; }
         .nav-btn.active::after { width: 80%; left: 10%; box-shadow: 0 0 10px var(--red); }
 
-        /* --- SETTINGS OVERLAY --- */
         .settings-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 3000; backdrop-filter: blur(10px);
@@ -119,10 +115,9 @@
         }
         .config-btn.active { border-color: var(--red); color: #fff; background: rgba(255,17,17,0.1); }
         .swatch-group { display: flex; gap: 10px; }
-        .swatch { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .swatch { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .swatch.active { border-color: white; transform: scale(1.1); }
 
-        /* --- PROXY INPUT --- */
         .proxy-input {
             width: 100%; background: #000; border: 1px solid #222; color: white;
             padding: 20px; font-family: monospace; font-size: 1rem; margin-bottom: 20px;
@@ -130,7 +125,6 @@
         }
         .proxy-input:focus { border-color: var(--red); box-shadow: 0 0 20px rgba(255,17,17,0.2); }
 
-        /* --- PAGES & CARDS --- */
         .container { max-width: 1300px; margin: 0 auto 100px; padding: 20px; position: relative; z-index: 10; }
         .page { display: none; opacity: 0; }
         .page.active { display: block; opacity: 1; }
@@ -183,12 +177,13 @@
                 <span class="close-log" onclick="closeLog()">[X]</span>
             </div>
             <div class="log-content-wrapper">
-                <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/f0a12dd3-322b-4300-a81b-ea83e004af56/ddzu80q-a3fbd48c-6f80-4082-85bc-535ee8aa9ca7.png/v1/fill/w_332,h_736/vocaloid___classical_teto_transparent_by_smochdar_ddzu80q-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzM2IiwicGF0aCI6Ii9mL2YwYTEyZGQzLTMyMmItNDMwMC1hODFiLWVhODNlMDA0YWY1Ni9kZHp1ODBxLWEzZmJkNDhjLTZmODAtNDA4Mi04NWJjLTUzNWVlOGFhOWNhNy5wbmciLCJ3aWR0aCI6Ijw9MzMyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.KiflLVyBoiDmevQgz_jGmWCrAxKEddSE5A9PVWhnW_8" class="log-image">
+                <img id="log-image" src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/f0a12dd3-322b-4300-a81b-ea83e004af56/ddzu80q-a3fbd48c-6f80-4082-85bc-535ee8aa9ca7.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzM2IiwicGF0aCI6Ii9mL2YwYTEyZGQzLTMyMmItNDMwMC1hODFiLWVhODNlMDA0YWY1Ni9kZHp1ODBxLWEzZmJkNDhjLTZmODAtNDA4Mi04NWJjLTUzNWVlOGFhOWNhNy5wbmciLCJ3aWR0aCI6Ijw9MzMyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.KiflLVyBoiDmevQgz_jGmWCrAxKEddSE5A9PVWhnW_8" class="log-image">
                 <div class="log-body" id="log-body-text"></div>
             </div>
         </div>
 
-          <img src="https://i.redd.it/which-kasane-teto-design-is-better-v0-0fv7i4wha6qc1.png?width=2200&format=png&auto=webp&s=7d0dcca3005b5ee197a12b68a98a4b21f9b096b6" class="corner-image">
+        <img id="corner-image" src="https://i.redd.it/which-kasane-teto-design-is-better-v0-0fv7i4wha6qc1.png?width=2200&format=png&auto=webp&s=7d0dcca3005b5ee197a12b68a98a4b21f9b096b6" class="corner-image">
+        
         <header>
             <h1 class="logo"> WALLSTANS HUB </h1>
             <nav>
@@ -260,11 +255,13 @@
                 <div class="setting-item">
                     <div class="setting-info">
                         <h3>Color Theme</h3>
-                        <p>Toggle between Original Red and Deep Dark Red.</p>
+                        <p>Nexus Color Profiles.</p>
                     </div>
                     <div class="swatch-group">
                         <div class="swatch active" style="background: #ff1111;" id="theme-red" onclick="setTheme('original')"></div>
-                        <div class="swatch" style="background: #7a0000;" id="theme-dark" onclick="setTheme('dark')"></div>
+                        <div class="swatch" style="background: #ff8c00;" id="theme-orange" onclick="setTheme('orange')"></div>
+                        <div class="swatch" style="background: #00ffff;" id="theme-cyan" onclick="setTheme('cyan')"></div>
+                        <div class="swatch" style="background: #bf00ff;" id="theme-purple" onclick="setTheme('purple')"></div>
                     </div>
                 </div>
                 <div class="setting-item">
@@ -298,7 +295,18 @@
     <script>
         const UPDATE_LOG_HTML = `<b>STATUS: ONLINE</b><br><br>• Version 1.0<br>• Proxy Module Added<br>• Stealth Cloak Active<br>• Made by wallstans.`;
 
+        const THEME_IMAGES = {
+            original: {
+                corner: "https://i.redd.it/which-kasane-teto-design-is-better-v0-0fv7i4wha6qc1.png?width=2200&format=png&auto=webp&s=7d0dcca3005b5ee197a12b68a98a4b21f9b096b6",
+                log: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/f0a12dd3-322b-4300-a81b-ea83e004af56/ddzu80q-a3fbd48c-6f80-4082-85bc-535ee8aa9ca7.png/v1/fill/w_332,h_736/vocaloid___classical_teto_transparent_by_smochdar_ddzu80q-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzM2IiwicGF0aCI6Ii9mL2YwYTEyZGQzLTMyMmItNDMwMC1hODFiLWVhODNlMDA0YWY1Ni9kZHp1ODBxLWEzZmJkNDhjLTZmODAtNDA4Mi04NWJjLTUzNWVlOGFhOWNhNy5wbmciLCJ3aWR0aCI6Ijw9MzMyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.KiflLVyBoiDmevQgz_jGmWCrAxKEddSE5A9PVWhnW_8"
+            },
+            orange: { corner: "https://static.wikia.nocookie.net/chainsaw-man/images/b/b0/Denji_Reze_Arc_anime_design.png/revision/latest?cb=20250324010006", log: "https://static.wikitide.net/greatcharacterswiki/0/0a/Denji_Chainsaw_Man_Reze_Arc_anime_design.png" },
+            cyan: { corner: "https://www.pngmart.com/files/4/Hatsune-Miku-PNG-Image.png", log: "https://www.pngkey.com/png/full/483-4834455_miku-chibi-png-chibi-hatsune-miku-png.png" },
+            purple: { corner: "https://www.pngall.com/wp-content/uploads/15/Jojo-Stand-Background-PNG.png", log: "https://freepngimg.com/save/118701-jojo-bizarre-jojo's-adventure-download-hq/1130x1370" }
+        };
+
         window.addEventListener('load', () => {
+            loadSavedSettings(); // <--- Initialize from Storage
             const bar = document.getElementById('load-bar');
             const text = document.getElementById('load-text');
             document.getElementById('log-body-text').innerHTML = UPDATE_LOG_HTML;
@@ -313,31 +321,52 @@
             }, 3000); 
         });
 
+        // --- STORAGE LOGIC ---
+        function loadSavedSettings() {
+            const savedTheme = localStorage.getItem('hub-theme') || 'original';
+            const savedParticles = localStorage.getItem('hub-particles') === 'true';
+            const savedStealth = localStorage.getItem('hub-stealth') === 'true';
+
+            setTheme(savedTheme);
+            if(savedParticles) toggleParticles(true);
+            if(savedStealth) toggleStealth(true);
+        }
+
         function toggleSettings(show) { document.getElementById('settings-overlay').style.display = show ? 'flex' : 'none'; }
         
         function setTheme(theme) {
+            document.body.classList.remove('theme-orange', 'theme-cyan', 'theme-purple');
             document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
-            if(theme === 'dark') {
-                document.body.classList.add('theme-dark-red');
-                document.getElementById('theme-dark').classList.add('active');
-            } else {
-                document.body.classList.remove('theme-dark-red');
-                document.getElementById('theme-red').classList.add('active');
-            }
+            const cornerImg = document.getElementById('corner-image');
+            const logImg = document.getElementById('log-image');
+
+            let selection = theme;
+            if(theme === 'original' || theme === 'red') selection = 'original';
+
+            document.getElementById(`theme-${selection === 'original' ? 'red' : selection}`).classList.add('active');
+            if(selection !== 'original') document.body.classList.add(`theme-${selection}`);
+            
+            cornerImg.src = THEME_IMAGES[selection].corner;
+            logImg.src = THEME_IMAGES[selection].log;
+
+            localStorage.setItem('hub-theme', selection);
         }
 
-        function toggleParticles() {
-            const active = document.body.classList.toggle('bg-active');
+        function toggleParticles(forceValue) {
+            const isActive = forceValue !== undefined ? forceValue : !document.body.classList.contains('bg-active');
+            document.body.classList.toggle('bg-active', isActive);
             const btn = document.getElementById('p-btn');
-            btn.innerText = active ? "Enabled" : "Disabled";
-            btn.classList.toggle('active', active);
+            btn.innerText = isActive ? "Enabled" : "Disabled";
+            btn.classList.toggle('active', isActive);
+            localStorage.setItem('hub-particles', isActive);
         }
 
-        function toggleStealth() {
-            const isStealth = document.body.classList.toggle('stealth-active');
+        function toggleStealth(forceValue) {
+            const isActive = forceValue !== undefined ? forceValue : !document.body.classList.contains('stealth-active');
+            document.body.classList.toggle('stealth-active', isActive);
             const btn = document.getElementById('stealth-btn');
             const fav = document.getElementById('favicon');
-            if(isStealth) {
+            if(isActive) {
                 document.title = "Google Drive";
                 fav.href = "https://ssl.gstatic.com/docs/doclist/images/drive_2020q4_32dp.png";
                 btn.innerText = "Enabled";
@@ -348,37 +377,17 @@
                 btn.innerText = "Disabled";
                 btn.classList.remove('active');
             }
+            localStorage.setItem('hub-stealth', isActive);
         }
 
         function launchProxy() {
             const urlInput = document.getElementById('proxy-url').value;
             if (!urlInput) return;
-
             let targetUrl = urlInput.trim();
-            if (!targetUrl.startsWith('http')) {
-                targetUrl = 'https://' + targetUrl;
-            }
-
-            // Using AllOrigins to strip "Refuse to Connect" headers
-            const bridge = "https://api.allorigins.win/raw?url=";
-            const finalUrl = bridge + encodeURIComponent(targetUrl);
-
+            if (!targetUrl.startsWith('http')) targetUrl = 'https://' + targetUrl;
+            const finalUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(targetUrl);
             const win = window.open('about:blank', '_blank');
-            win.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Google Drive</title>
-                    <style>
-                        body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; }
-                        iframe { width: 100%; height: 100%; border: none; }
-                    </style>
-                </head>
-                <body>
-                    <iframe src="${finalUrl}"></iframe>
-                </body>
-                </html>
-            `);
+            win.document.write(`<html><head><title>Google Drive</title><style>body,html{margin:0;padding:0;height:100vh;overflow:hidden;background:#000;}iframe{width:100%;height:100%;border:none;}</style></head><body><iframe src="${finalUrl}"></iframe></body></html>`);
             win.document.close();
         }
 
