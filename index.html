@@ -7,7 +7,6 @@
     <link rel="icon" type="image/png" id="favicon" href="https://i.ibb.co/pVPrK0k/wallstans-hub.png">
     
     <style>
-        /* --- CORE CONFIGURATION --- */
         :root {
             --red: #ff1111;
             --bg: #000000;
@@ -15,7 +14,6 @@
             --transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        /* Theme Overrides */
         body.theme-orange { --red: #ff8c00; }
         body.theme-cyan { --red: #00ffff; }
         body.theme-purple { --red: #bf00ff; }
@@ -31,7 +29,6 @@
             min-height: 100vh;
         }
 
-        /* --- BACKGROUND CANVAS --- */
         #bg-canvas {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -42,7 +39,6 @@
         }
         body.bg-active #bg-canvas { opacity: 0.4; }
 
-        /* --- LOADING SCREEN --- */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg);
@@ -54,7 +50,6 @@
         .progress-container { width: 100%; height: 2px; background: rgba(255, 255, 255, 0.1); position: relative; overflow: hidden; }
         .progress-bar { position: absolute; height: 100%; width: 0%; background: var(--red); box-shadow: 0 0 15px var(--red); transition: width 3s linear; }
 
-        /* --- UPDATE LOG BOX --- */
         #update-log-container {
             position: fixed; top: 20px; right: 20px; width: 380px;
             background: rgba(0, 0, 0, 0.8); border: 1px solid var(--red);
@@ -89,6 +84,33 @@
         .nav-btn::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 1px; background: var(--red); transition: var(--transition); }
         .nav-btn:hover, .nav-btn.active { color: white; }
         .nav-btn.active::after { width: 80%; left: 10%; box-shadow: 0 0 10px var(--red); }
+
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 40px auto 20px;
+            position: relative;
+        }
+
+        .game-search {
+            width: 100%;
+            background: #000;
+            border: 1px solid #222;
+            color: white;
+            padding: 15px 25px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            outline: none;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .game-search:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 20px rgba(255, 17, 17, 0.1);
+        }
 
         .settings-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -189,6 +211,7 @@
             <nav>
                 <button class="nav-btn active" onclick="showPage('games', this)">GAMES</button>
                 <button class="nav-btn" onclick="showPage('proxy', this)">PROXY</button>
+                <button class="nav-btn" onclick="showPage('ngg-bypass', this)">NGG BYPASS</button>
                 <button class="nav-btn" onclick="showPage('owner', this)">INFORMATION</button>
                 <button class="nav-btn" onclick="showPage('sneaks', this)">SNEAK PEEKS</button>
                 <button class="nav-btn" onclick="toggleSettings(true)">SETTINGS</button>
@@ -197,13 +220,17 @@
 
         <div class="container">
             <section id="games" class="page active">
-                <div class="grid">
+                <div class="search-container">
+                    <input type="text" id="gameSearch" class="game-search" placeholder="SEARCH DATABASE..." onkeyup="filterGames()">
+                </div>
+                <div class="grid" id="gameGrid">
                     <div class="card"><h3>BAD TIME</h3><p>PVE COMBAT</p><button class="play-btn" onclick="openGate('https://proud-lavender-law-346.vscodeedu.app/', 'https://drive.google.com/file/d/1udHycgNNB6wJu113gGqBp6K8JjPvvCA-/view?usp=sharing')">Execute</button></div>
                     <div class="card"><h3>TBOIWOL</h3><p>PVE COMBAT</p><button class="play-btn" onclick="openGate('https://pumpkin-light-artist-606.vscodeedu.app', 'https://drive.google.com/file/d/1MbOtWVXgDHOpGm3-8jVXSDUoTkbEMRte/view?usp=sharing')">Execute</button></div>
                     <div class="card"><h3>DELTARUNE</h3><p>PUZZLES</p><button class="play-btn" onclick="openGate('https://lilac-cleaning-sloth-484.vscodeedu.app', 'https://drive.google.com/file/d/1s4C3TpkM9OQ_OeHHNNwWMCVEbs6ywEQX/view?usp=sharing')">Execute</button></div>
                     <div class="card"><h3>FNAF 1</h3><p>PUZZLES</p><button class="play-btn" onclick="openGate('https://basil-sprinting-artist-794.vscodeedu.app', 'CM')">Execute</button></div>
                     <div class="card"><h3>ULTRA KILL</h3><p>PVE COMBAT</p><button class="play-btn" onclick="openGate('https://delighting-devoted-sofa-686.vscodeedu.app', 'CM')">Execute</button></div>
                     <div class="card"><h3>POC</h3><p>TURN BASED</p><button class="play-btn" onclick="openGate('https://soothing-motivated-movie-549.vscodeedu.app', 'CM')">Execute</button></div>
+                    <div class="card"><h3>ASTRA CLIENT</h3><p>SNG, MULTI</p><button class="play-btn" onclick="openGate('https://olive-drawing-crab-191.vscodeedu.app', 'CM')">Execute</button></div>
                 </div>
             </section>
 
@@ -214,6 +241,21 @@
                     <input type="text" id="proxy-url" class="proxy-input" placeholder="ENTER SECURE URL (ROBLOX.COM, ETC.)">
                     <button class="play-btn" style="max-width: 300px; margin: 0 auto;" onclick="launchProxy()">INITIATE TUNNEL</button>
                     <div style="margin-top: 50px; color: var(--red); font-weight: 900; letter-spacing: 2px; font-size: 0.6rem;">NETWORK STATUS: SECURE BRIDGE ACTIVE</div>
+                </div>
+            </section>
+
+            <section id="ngg-bypass" class="page">
+                <div class="owner-section">
+                    <h2 style="color: white; font-size: 2rem; letter-spacing: 5px; text-transform: uppercase;">[ NGG BYPASS ]</h2>
+                    <p style="color: #555; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 40px;">NEURAL GATEWAY GENERATOR | BYPASS UTILITY</p>
+                    <div class="grid">
+                        <div class="card">
+                            <h3>ARCADE 101 BYPASS</h3>
+                            <p>READY FOR INITIALIZATION</p>
+                            <button class="play-btn" onclick="initArcadeBypass()">ACTIVATE</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 50px; color: var(--red); font-weight: 900; letter-spacing: 2px; font-size: 0.6rem;">STATUS: STANDBY</div>
                 </div>
             </section>
 
@@ -302,16 +344,16 @@
             },
             orange: { corner: "https://i.ibb.co/FLQ4Wwq8/Denji-Reze-Arc-anime-design.webp", log: "https://static.wikitide.net/greatcharacterswiki/0/0a/Denji_Chainsaw_Man_Reze_Arc_anime_design.png" },
             cyan: { corner: "https://www.pngmart.com/files/4/Hatsune-Miku-PNG-Image.png", log: "https://www.pngkey.com/png/full/483-4834455_miku-chibi-png-chibi-hatsune-miku-png.png" },
-            purple: { corner: "https://www.pngall.com/wp-content/uploads/15/Jojo-Stand-Background-PNG.png", log: "https://freepngimg.com/save/118701-jojo-bizarre-jojo's-adventure-download-hq/1130x1370" }
+            purple: { corner: "https://i.redd.it/qual-%C3%A9-melhor-drip-do-jotaro-se-voc%C3%AA-tiver-um-recolor-que-v0-xe39ik45vfif1.png?width=1407&format=png&auto=webp&s=27c83a1a95b73bc2ca3eedad3ff6fc6edcdeaa08", log: "https://freepngimg.com/save/118701-jojo-bizarre-jojo's-adventure-download-hq/1130x1370" }
         };
 
         window.addEventListener('load', () => {
-            loadSavedSettings(); // <--- Initialize from Storage
+            loadSavedSettings();
             const bar = document.getElementById('load-bar');
             const text = document.getElementById('load-text');
             document.getElementById('log-body-text').innerHTML = UPDATE_LOG_HTML;
             setTimeout(() => { bar.style.width = '100%'; }, 100);
-            setTimeout(() => { text.innerText = 'teto is cool..'; }, 1500);
+            setTimeout(() => { text.innerText = 'anime is cool..'; }, 1500);
             setTimeout(() => { 
                 document.getElementById('loader').style.opacity = '0';
                 document.getElementById('loader').style.visibility = 'hidden';
@@ -321,7 +363,23 @@
             }, 3000); 
         });
 
-        // --- STORAGE LOGIC ---
+        function filterGames() {
+            const input = document.getElementById('gameSearch');
+            const filter = input.value.toUpperCase();
+            const grid = document.getElementById('gameGrid');
+            const cards = grid.getElementsByClassName('card');
+
+            for (let i = 0; i < cards.length; i++) {
+                const title = cards[i].getElementsByTagName('h3')[0];
+                const txtValue = title.textContent || title.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    cards[i].style.display = "";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+
         function loadSavedSettings() {
             const savedTheme = localStorage.getItem('hub-theme') || 'original';
             const savedParticles = localStorage.getItem('hub-particles') === 'true';
@@ -373,7 +431,7 @@
                 btn.classList.add('active');
             } else {
                 document.title = "Wallstans Hub | WALI K";
-                fav.href = "YOUR_IMAGE_LINK_HERE";
+                fav.href = "https://i.ibb.co/pVPrK0k/wallstans-hub.png";
                 btn.innerText = "Disabled";
                 btn.classList.remove('active');
             }
@@ -389,6 +447,31 @@
             const win = window.open('about:blank', '_blank');
             win.document.write(`<html><head><title>Google Drive</title><style>body,html{margin:0;padding:0;height:100vh;overflow:hidden;background:#000;}iframe{width:100%;height:100%;border:none;}</style></head><body><iframe src="${finalUrl}"></iframe></body></html>`);
             win.document.close();
+        }
+
+        // New functionality for Arcade 101 Bypass
+        function initArcadeBypass() {
+            const arcadeUrl = "nowgg.fun"; // Change this to the specific link you want it to open
+            const win = window.open('about:blank', '_blank');
+            if (win) {
+                win.document.write(`
+                    <html>
+                        <head>
+                            <title>Google Drive</title>
+                            <style>
+                                body, html { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; }
+                                iframe { width: 100%; height: 100%; border: none; }
+                            </style>
+                        </head>
+                        <body>
+                            <iframe src="https://api.allorigins.win/raw?url=${encodeURIComponent(arcadeUrl)}"></iframe>
+                        </body>
+                    </html>
+                `);
+                win.document.close();
+            } else {
+                alert("Please allow pop-ups for this hub to function correctly.");
+            }
         }
 
         function initParticles() {
